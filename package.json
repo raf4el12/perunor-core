@@ -1,0 +1,21 @@
+{
+  "name": "perunor-core",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "db:push": "bun run --cwd packages/db db:push",
+    "db:migrate": "bun run --cwd packages/db db:migrate",
+    "db:studio": "bun run --cwd packages/db db:studio"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.3",
+    "typescript": "^5.8.3"
+  }
+}

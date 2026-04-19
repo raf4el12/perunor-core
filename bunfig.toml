@@ -1,0 +1,8 @@
+[install]
+# Usar el registro público de npm
+registry = "https://registry.npmjs.org"
+
+[install.scopes]
+
+[run]
+bun = true
