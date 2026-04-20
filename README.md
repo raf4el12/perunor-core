@@ -52,17 +52,19 @@ packages/
   shared/       Zod schemas, tipos comunes
 ```
 
-## Maestros implementados
+## Módulo Settings — Maestros (7/7 completados)
 
-- ✅ **Artículo**: código, nombre, descripción, unidad, categoría
-- ✅ **Almacén**: nombre, ubicación
-- ✅ **Proceso**: nombre, descripción
-- ✅ **Proveedor**: RUC, nombre, contacto
-- ✅ **Cliente**: RUC, nombre, contacto
-- ⏳ **Conductor**: DNI, nombre, licencia
-- ⏳ **Usuario**: gestión desde UI
+| Maestro | Campos | Status |
+|---------|--------|--------|
+| **Artículo** | código, nombre, unidad, categoría, descripción | ✅ |
+| **Almacén** | código, nombre, ubicación | ✅ |
+| **Proceso** | nombre, descripción | ✅ |
+| **Proveedor** | RUC, nombre, contacto | ✅ |
+| **Cliente** | RUC, nombre, contacto | ✅ |
+| **Conductor** | DNI (8 dígitos), nombres, apellidos, licencia, teléfono, placa | ✅ |
+| **Usuario** | nombre, email, rol (admin/operador), passwordless OTP | ✅ |
 
-Todos con CRUD completo, búsqueda, paginación y toggle de estado.
+Cada uno con: CRUD, búsqueda, paginación, toggle estado (activo/inactivo).
 
 ## Variables de entorno
 
@@ -94,36 +96,56 @@ Sistema passwordless OTP:
 3. Verifica código → JWT en cookie httpOnly
 4. Protección en resolvers GraphQL con `usuarioId`
 
-## Patrones de código
+## Patrón de implementación: Vertical Slice (Settings)
 
-### DB Schema
-- Ubicación: `packages/db/src/schema/[entidad].ts`
-- Export en: `packages/db/src/schema/index.ts`
-- Tipos automáticos con Drizzle
+Cada maestro sigue la **misma arquitectura** (replicable):
 
-### Validación
-- Ubicación: `packages/shared/src/schemas/[dominio].ts`
-- Validar en resolver ANTES de tocar BD
-- Exportar tipos con `z.infer<>`
+```
+1. DB Layer (packages/db/src/schema/[entidad].ts)
+   → Drizzle table definition + enum si aplica
+   → Export en schema/index.ts
 
-### GraphQL Resolver
-- Ubicación: `apps/api/src/graphql/resolvers/[modulo].ts`
-- Verificar `usuarioId` al inicio (auth)
-- Patrones: Query (list + get), Mutation (create, update, toggle)
-- Wiring en: `apps/api/src/graphql/resolvers/index.ts`
+2. Shared Layer (packages/shared/src/schemas/[entidad].ts)
+   → Zod schemas: Crear[Entidad]Schema, Actualizar[Entidad]Schema
+   → Type exports con z.infer<>
+   → Export en shared/index.ts
 
-### UI
-- Ubicación: `apps/web/src/pages/settings/[Entidad]Page.tsx`
-- Apollo Client con queries/mutations
-- Rutas en: `apps/web/src/App.tsx`
-- Links en: `apps/web/src/pages/HomePage.tsx`
+3. API Layer (apps/api/src/graphql/)
+   → schema.ts: type [Entidad], input Crear/Actualizar, Query + Mutation
+   → resolvers/[entidad].ts: CRUD + search
+   → resolvers/index.ts: register queries/mutations
 
-## Próximos pasos
+4. Web Layer (apps/web/src/pages/settings/)
+   → [Entidad]sPage.tsx: list, search, modal create/edit, toggle
+   → GraphQL queries/mutations con Apollo Client
+   → App.tsx: route /settings/[entidades]
+   → HomePage.tsx: navigation link
+```
 
-1. ⏳ Implementar maestros restantes: Conductor, Usuario
-2. ⏳ Documento polimórfico (compra | procesamiento | salida | factura)
-3. ⏳ Kardex e inventario
-4. ⏳ Reportes operativos
+**Ejemplo:** Ver `Proveedor` o `Conductor` para patrón estándar.
+
+## Roadmap
+
+### Core Features (Post-MVP)
+1. **Documento polimórfico** (siguiente)
+   - Un tipo `Documento` con discriminador: `compra | procesamiento | salida | factura`
+   - Referencias a maestros (proveedor/cliente, almacén, conductor, artículos)
+   - Máquina de estados: borrador → confirmado → anulado
+   - Outbox pattern para eventos (dispara actualizaciones de kardex)
+
+2. **Kardex e Inventario**
+   - Kardex: movimientos de stock por artículo/almacén
+   - Valuación: FIFO, promedio ponderado
+   - Alertas de stock mínimo
+
+3. **Reportes operativos**
+   - Compras por período/proveedor
+   - Movimientos de almacén
+   - Análisis de costos (paprika procesada)
+
+### Post-MVP (separados)
+- **SUNAT/Facturación**: integración con API de SUNAT (proyecto separado)
+- **Analytics**: dashboards con datos históricos
 
 ## Licencia
 
