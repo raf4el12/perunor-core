@@ -5,4 +5,6 @@ export * from "./schemas/almacen";
 export * from "./schemas/proceso";
 export * from "./schemas/proveedor";
 export * from "./schemas/cliente";
+export * from "./schemas/conductor";
+export * from "./schemas/usuario";
 export * from "./types";

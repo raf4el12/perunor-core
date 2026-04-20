@@ -12,6 +12,10 @@ export const typeDefs = `#graphql
     proveedor(id: ID!): Proveedor
     clientes(page: Int, limit: Int, search: String): ClientePaginado!
     cliente(id: ID!): Cliente
+    conductores(page: Int, limit: Int, search: String): ConductorPaginado!
+    conductor(id: ID!): Conductor
+    usuarios(page: Int, limit: Int, search: String): UsuarioPaginado!
+    usuario(id: ID!): Usuario
   }
 
   type Mutation {
@@ -32,6 +36,12 @@ export const typeDefs = `#graphql
     crearCliente(input: CrearClienteInput!): Cliente!
     actualizarCliente(id: ID!, input: ActualizarClienteInput!): Cliente!
     toggleCliente(id: ID!): Cliente!
+    crearConductor(input: CrearConductorInput!): Conductor!
+    actualizarConductor(id: ID!, input: ActualizarConductorInput!): Conductor!
+    toggleConductor(id: ID!): Conductor!
+    crearUsuario(input: CrearUsuarioInput!): Usuario!
+    actualizarUsuario(id: ID!, input: ActualizarUsuarioInput!): Usuario!
+    toggleUsuario(id: ID!): Usuario!
   }
 
   type Usuario {
@@ -210,5 +220,62 @@ export const typeDefs = `#graphql
     ruc: String
     nombre: String
     contacto: String
+  }
+
+  type Conductor {
+    id: ID!
+    dni: String!
+    nombres: String!
+    apellidos: String!
+    licencia: String
+    telefono: String
+    placaVehiculo: String
+    activo: Boolean!
+    creadoEn: String!
+    actualizadoEn: String!
+  }
+
+  type ConductorPaginado {
+    items: [Conductor!]!
+    total: Int!
+    page: Int!
+    limit: Int!
+  }
+
+  input CrearConductorInput {
+    dni: String!
+    nombres: String!
+    apellidos: String!
+    licencia: String
+    telefono: String
+    placaVehiculo: String
+  }
+
+  input ActualizarConductorInput {
+    dni: String
+    nombres: String
+    apellidos: String
+    licencia: String
+    telefono: String
+    placaVehiculo: String
+  }
+
+  type UsuarioPaginado {
+    items: [Usuario!]!
+    total: Int!
+    page: Int!
+    limit: Int!
+  }
+
+  input CrearUsuarioInput {
+    nombre: String!
+    email: String!
+    rol: Rol!
+  }
+
+  input ActualizarUsuarioInput {
+    nombre: String
+    email: String
+    rol: Rol
   }
 `;

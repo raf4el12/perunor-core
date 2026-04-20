@@ -4,3 +4,4 @@ export * from "./almacen";
 export * from "./proceso";
 export * from "./proveedor";
 export * from "./cliente";
+export * from "./conductor";

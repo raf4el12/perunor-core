@@ -65,6 +65,26 @@ export function HomePage() {
         >
           Clientes
         </Link>
+        <Link
+          to="/settings/conductores"
+          style={{
+            display: "block", padding: "1rem 1.5rem", background: "#e8edf2",
+            borderRadius: 8, textDecoration: "none", color: "#1a3a5c", fontWeight: 600,
+            fontSize: "0.9rem",
+          }}
+        >
+          Conductores
+        </Link>
+        <Link
+          to="/settings/usuarios"
+          style={{
+            display: "block", padding: "1rem 1.5rem", background: "#e8edf2",
+            borderRadius: 8, textDecoration: "none", color: "#1a3a5c", fontWeight: 600,
+            fontSize: "0.9rem",
+          }}
+        >
+          Usuarios
+        </Link>
       </div>
     </div>
   );

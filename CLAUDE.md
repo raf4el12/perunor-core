@@ -44,8 +44,7 @@ packages/
 - [x] apps/web — React + login passwordless (email → OTP → JWT)
 - [x] docker-compose.yml con Postgres 16
 - [ ] Primer `bun install` + `bun db:push` (pendiente ejecutar)
-- [x] Módulo Settings — Artículo (vertical slice completo: DB → GraphQL → UI)
-- [ ] Módulo Settings — resto de maestros: Proceso, Almacén, Cliente, Proveedor, Conductor, Usuario
+- [x] Módulo Settings — Artículo, Almacén, Proceso, Proveedor, Cliente, Conductor, Usuario (CRUD completo: DB → GraphQL → UI)
 - [ ] Documento polimórfico (core del ERP)
 - [ ] Inventario / Kardex
 - [ ] Reportes
@@ -77,5 +76,9 @@ PORT=4000
 - Auth: verificar `context.usuarioId` al inicio de cada resolver protegido
 
 ## Próximo paso
-Replicar el patrón de `Articulo` para los demás maestros del módulo Settings:
-`Proceso`, `Almacen`, `Cliente`, `Proveedor`, `Conductor`, `Usuario` (gestión desde UI).
+Diseñar el **Documento polimórfico** (core del ERP):
+- Un solo tipo `Documento` con discriminador `tipo: compra | procesamiento | salida | factura`.
+- Header común (fecha, estado, observaciones) + referencias a maestros (proveedor/cliente, almacén, conductor).
+- Líneas (`DocumentoLinea`) con artículo, cantidad, unidad, precio, proceso opcional.
+- Máquina de estados: `borrador → confirmado → anulado` con transiciones controladas.
+- Outbox pattern para eventos al confirmar (dispara kardex).
