@@ -5,6 +5,7 @@ import { typeDefs } from "./graphql/schema";
 import { resolvers } from "./graphql/resolvers";
 import type { ApolloContext } from "./context";
 import { buildContext } from "./context";
+import { startOutboxWorker } from "./outbox/worker";
 
 const PORT = Number(process.env.PORT ?? 4000);
 
@@ -29,6 +30,8 @@ async function main() {
 
   await fastify.listen({ port: PORT, host: "0.0.0.0" });
   console.log(`API corriendo en http://localhost:${PORT}/graphql`);
+
+  startOutboxWorker();
 }
 
 main().catch((err) => {

@@ -7,4 +7,5 @@ export * from "./schemas/proveedor";
 export * from "./schemas/cliente";
 export * from "./schemas/conductor";
 export * from "./schemas/usuario";
+export * from "./schemas/documento";
 export * from "./types";

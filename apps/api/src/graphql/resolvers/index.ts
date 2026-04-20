@@ -8,6 +8,7 @@ import { proveedorResolvers } from "./proveedor";
 import { clienteResolvers } from "./cliente";
 import { conductorResolvers } from "./conductor";
 import { usuarioResolvers } from "./usuario";
+import { documentoResolvers } from "./documento";
 import type { ApolloContext } from "../../context";
 import { GraphQLError } from "graphql";
 
@@ -26,6 +27,7 @@ export const resolvers = {
     ...clienteResolvers.Query,
     ...conductorResolvers.Query,
     ...usuarioResolvers.Query,
+    ...documentoResolvers.Query,
   },
   Mutation: {
     ...authResolvers.Mutation,
@@ -36,5 +38,8 @@ export const resolvers = {
     ...clienteResolvers.Mutation,
     ...conductorResolvers.Mutation,
     ...usuarioResolvers.Mutation,
+    ...documentoResolvers.Mutation,
   },
+  Documento: documentoResolvers.Documento,
+  DocumentoLinea: documentoResolvers.DocumentoLinea,
 };

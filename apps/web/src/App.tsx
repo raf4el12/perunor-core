@@ -8,6 +8,8 @@ import { ProveedoresPage } from "./pages/settings/ProveedoresPage";
 import { ClientesPage } from "./pages/settings/ClientesPage";
 import { ConductoresPage } from "./pages/settings/ConductoresPage";
 import { UsuariosPage } from "./pages/settings/UsuariosPage";
+import { DocumentosPage } from "./pages/documentos/DocumentosPage";
+import { DocumentoEditorPage } from "./pages/documentos/DocumentoEditorPage";
 import { useAuth } from "./hooks/useAuth";
 
 export function App() {
@@ -34,6 +36,9 @@ export function App() {
       <Route path="/settings/clientes" element={<ClientesPage />} />
       <Route path="/settings/conductores" element={<ConductoresPage />} />
       <Route path="/settings/usuarios" element={<UsuariosPage />} />
+      <Route path="/documentos" element={<DocumentosPage />} />
+      <Route path="/documentos/nuevo" element={<DocumentoEditorPage />} />
+      <Route path="/documentos/:id" element={<DocumentoEditorPage />} />
       <Route path="/*" element={<Navigate to="/" replace />} />
     </Routes>
   );

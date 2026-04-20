@@ -45,8 +45,8 @@ packages/
 - [x] docker-compose.yml con Postgres 16
 - [ ] Primer `bun install` + `bun db:push` (pendiente ejecutar)
 - [x] Módulo Settings — Artículo, Almacén, Proceso, Proveedor, Cliente, Conductor, Usuario (CRUD completo: DB → GraphQL → UI)
-- [ ] Documento polimórfico (core del ERP)
-- [ ] Inventario / Kardex
+- [x] Documento polimórfico (core del ERP) — tipos: compra/procesamiento/salida/factura, máquina de estados borrador→confirmado→anulado, numeración atómica por tipo/año, outbox pattern
+- [ ] Inventario / Kardex (consumir eventos del outbox)
 - [ ] Reportes
 
 ## Comandos clave
@@ -76,9 +76,17 @@ PORT=4000
 - Auth: verificar `context.usuarioId` al inicio de cada resolver protegido
 
 ## Próximo paso
-Diseñar el **Documento polimórfico** (core del ERP):
-- Un solo tipo `Documento` con discriminador `tipo: compra | procesamiento | salida | factura`.
-- Header común (fecha, estado, observaciones) + referencias a maestros (proveedor/cliente, almacén, conductor).
-- Líneas (`DocumentoLinea`) con artículo, cantidad, unidad, precio, proceso opcional.
-- Máquina de estados: `borrador → confirmado → anulado` con transiciones controladas.
-- Outbox pattern para eventos al confirmar (dispara kardex).
+**Inventario / Kardex**: consumir eventos `documento.confirmado` del outbox para:
+- Crear movimientos de kardex por artículo/almacén (ingreso/egreso según tipo de documento y línea).
+- Valuación (FIFO o promedio ponderado — definir).
+- Vista de saldo por almacén/artículo.
+- Alertas de stock mínimo.
+
+El handler actual en `apps/api/src/outbox/worker.ts` solo loguea los eventos — ahí se implementa la lógica de kardex.
+
+## Módulo Documento (implementado)
+- Tablas: `documento`, `documento_linea`, `contador_documento` (numeración atómica por tipo/año), `outbox_evento`.
+- Estados: `borrador → confirmado → anulado`. Solo borradores son editables/eliminables.
+- Numeración: se asigna en `confirmarDocumento` vía `INSERT ... ON CONFLICT DO UPDATE` sobre `contador_documento`. Prefijos: `C` (compra), `P` (procesamiento), `S` (salida), `F` (factura).
+- Outbox: al confirmar/anular se inserta fila en `outbox_evento`; worker poll cada 5s, máx 5 reintentos por fila.
+- Decimales: `numeric(14,4)` en DB, expuestos como `String` en GraphQL (evita pérdida de precisión).

@@ -5,3 +5,7 @@ export * from "./proceso";
 export * from "./proveedor";
 export * from "./cliente";
 export * from "./conductor";
+export * from "./documento";
+export * from "./documento_linea";
+export * from "./outbox_evento";
+export * from "./contador_documento";

@@ -16,6 +16,8 @@ export const typeDefs = `#graphql
     conductor(id: ID!): Conductor
     usuarios(page: Int, limit: Int, search: String): UsuarioPaginado!
     usuario(id: ID!): Usuario
+    documentos(page: Int, limit: Int, tipo: TipoDocumento, estado: EstadoDocumento, search: String): DocumentoPaginado!
+    documento(id: ID!): Documento
   }
 
   type Mutation {
@@ -42,6 +44,11 @@ export const typeDefs = `#graphql
     crearUsuario(input: CrearUsuarioInput!): Usuario!
     actualizarUsuario(id: ID!, input: ActualizarUsuarioInput!): Usuario!
     toggleUsuario(id: ID!): Usuario!
+    crearDocumento(input: CrearDocumentoInput!): Documento!
+    actualizarDocumento(id: ID!, input: ActualizarDocumentoInput!): Documento!
+    confirmarDocumento(id: ID!): Documento!
+    anularDocumento(id: ID!, motivo: String): Documento!
+    eliminarDocumento(id: ID!): Boolean!
   }
 
   type Usuario {
@@ -277,5 +284,113 @@ export const typeDefs = `#graphql
     nombre: String
     email: String
     rol: Rol
+  }
+
+  enum TipoDocumento {
+    compra
+    procesamiento
+    salida
+    factura
+  }
+
+  enum EstadoDocumento {
+    borrador
+    confirmado
+    anulado
+  }
+
+  enum MovimientoLinea {
+    ingreso
+    egreso
+  }
+
+  type DocumentoLinea {
+    id: ID!
+    articuloId: ID!
+    articulo: Articulo
+    procesoId: ID
+    proceso: Proceso
+    orden: Int!
+    movimiento: MovimientoLinea!
+    cantidad: String!
+    unidad: String!
+    precioUnitario: String!
+    subtotal: String!
+  }
+
+  type Documento {
+    id: ID!
+    tipo: TipoDocumento!
+    numero: String
+    fecha: String!
+    estado: EstadoDocumento!
+    observaciones: String
+
+    proveedorId: ID
+    proveedor: Proveedor
+    clienteId: ID
+    cliente: Cliente
+    almacenId: ID!
+    almacen: Almacen
+    almacenDestinoId: ID
+    almacenDestino: Almacen
+    conductorId: ID
+    conductor: Conductor
+    procesoId: ID
+    proceso: Proceso
+    usuarioId: ID!
+    usuario: Usuario
+
+    subtotal: String!
+    igv: String!
+    total: String!
+
+    lineas: [DocumentoLinea!]!
+
+    creadoEn: String!
+    actualizadoEn: String!
+    confirmadoEn: String
+    anuladoEn: String
+  }
+
+  type DocumentoPaginado {
+    items: [Documento!]!
+    total: Int!
+    page: Int!
+    limit: Int!
+  }
+
+  input CrearDocumentoLineaInput {
+    articuloId: ID!
+    procesoId: ID
+    movimiento: MovimientoLinea!
+    cantidad: String!
+    unidad: String!
+    precioUnitario: String
+  }
+
+  input CrearDocumentoInput {
+    tipo: TipoDocumento!
+    fecha: String!
+    observaciones: String
+    proveedorId: ID
+    clienteId: ID
+    almacenId: ID!
+    almacenDestinoId: ID
+    conductorId: ID
+    procesoId: ID
+    lineas: [CrearDocumentoLineaInput!]!
+  }
+
+  input ActualizarDocumentoInput {
+    fecha: String
+    observaciones: String
+    proveedorId: ID
+    clienteId: ID
+    almacenId: ID
+    almacenDestinoId: ID
+    conductorId: ID
+    procesoId: ID
+    lineas: [CrearDocumentoLineaInput!]
   }
 `;

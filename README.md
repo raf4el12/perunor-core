@@ -127,13 +127,15 @@ Cada maestro sigue la **misma arquitectura** (replicable):
 ## Roadmap
 
 ### Core Features (Post-MVP)
-1. **Documento polimórfico** (siguiente)
+1. **Documento polimórfico** ✅
    - Un tipo `Documento` con discriminador: `compra | procesamiento | salida | factura`
    - Referencias a maestros (proveedor/cliente, almacén, conductor, artículos)
    - Máquina de estados: borrador → confirmado → anulado
-   - Outbox pattern para eventos (dispara actualizaciones de kardex)
+   - Numeración atómica por tipo/año (`C-2026-000001`)
+   - Outbox pattern para eventos (`documento.confirmado`, `documento.anulado`)
+   - UI: lista con filtros (tipo/estado) + editor con líneas dinámicas
 
-2. **Kardex e Inventario**
+2. **Kardex e Inventario** (siguiente)
    - Kardex: movimientos de stock por artículo/almacén
    - Valuación: FIFO, promedio ponderado
    - Alertas de stock mínimo
