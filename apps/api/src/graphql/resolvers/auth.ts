@@ -17,7 +17,12 @@ export const authResolvers = {
       const expiraEn = new Date(Date.now() + 5 * 60 * 1000);
 
       await db.insert(otpCode).values({ email: email.toLowerCase(), code, expiraEn });
-      await sendOtpEmail(email, code);
+
+      if (process.env.NODE_ENV !== "production") {
+        console.log(`\n[DEV] OTP para ${email}: ${code}\n`);
+      } else {
+        await sendOtpEmail(email, code);
+      }
 
       return { ok: true, message: "Código enviado. Revisá tu correo." };
     },

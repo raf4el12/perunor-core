@@ -1,4 +1,5 @@
 import Fastify from "fastify";
+import cookie from "@fastify/cookie";
 import { ApolloServer } from "@apollo/server";
 import { fastifyApolloDrainPlugin, fastifyApolloHandler } from "@as-integrations/fastify";
 import { typeDefs } from "./graphql/schema";
@@ -11,6 +12,7 @@ const PORT = Number(process.env.PORT ?? 4000);
 
 async function main() {
   const fastify = Fastify({ logger: true });
+  await fastify.register(cookie);
 
   const apollo = new ApolloServer<ApolloContext>({
     typeDefs,

@@ -8,16 +8,16 @@ export interface ApolloContext {
   rol: string | null;
 }
 
-export async function buildContext({
-  request,
-}: {
-  request: FastifyRequest;
-  reply: FastifyReply;
-}): Promise<ApolloContext> {
+export async function buildContext(
+  request: FastifyRequest,
+  _reply: FastifyReply,
+): Promise<ApolloContext> {
   let usuarioId: string | null = null;
   let rol: string | null = null;
 
-  const token = request.cookies?.["token"] ?? request.headers.authorization?.replace("Bearer ", "");
+  let cookieToken: string | undefined;
+  try { cookieToken = request.cookies?.["token"]; } catch { cookieToken = undefined; }
+  const token = cookieToken ?? request.headers?.authorization?.replace("Bearer ", "");
 
   if (token) {
     const payload = await verifyToken(token).catch(() => null);

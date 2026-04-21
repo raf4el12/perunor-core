@@ -1,0 +1,202 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+:root {
+  /* Typography */
+  --font-display: "Fraunces", "Georgia", serif;
+  --font-body: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Warm earth palette — paprika x stone */
+  --stone-50: #fafaf9;
+  --stone-100: #f5f5f4;
+  --stone-150: #eeece9;
+  --stone-200: #e7e5e4;
+  --stone-300: #d6d3d1;
+  --stone-400: #a8a29e;
+  --stone-500: #78716c;
+  --stone-600: #57534e;
+  --stone-700: #44403c;
+  --stone-800: #292524;
+  --stone-900: #1c1917;
+
+  /* Brand — deep midnight with warm undertone */
+  --brand-50: #f0f4f8;
+  --brand-100: #d9e2ec;
+  --brand-200: #bcccdc;
+  --brand-500: #2c5282;
+  --brand-600: #1e3a5f;
+  --brand-700: #162c47;
+  --brand-800: #0f2036;
+  --brand-900: #081223;
+
+  /* Accents */
+  --paprika-50: #fef2f2;
+  --paprika-100: #fee2e2;
+  --paprika-500: #c53030;
+  --paprika-600: #9b2828;
+  --paprika-700: #7a1f1f;
+
+  --ochre-50: #fef7e6;
+  --ochre-100: #fdecc4;
+  --ochre-500: #c2821a;
+  --ochre-600: #9a6714;
+
+  --sage-50: #f0f6f1;
+  --sage-100: #dae9dc;
+  --sage-500: #4b7f4f;
+  --sage-600: #3a6a3e;
+  --sage-700: #2f5533;
+
+  /* Semantic */
+  --bg: var(--stone-50);
+  --surface: #ffffff;
+  --surface-alt: var(--stone-100);
+  --surface-sunken: var(--stone-150);
+  --border: var(--stone-200);
+  --border-strong: var(--stone-300);
+  --text: var(--stone-900);
+  --text-muted: var(--stone-500);
+  --text-subtle: var(--stone-400);
+  --text-inverse: #fafaf9;
+
+  --primary: var(--brand-700);
+  --primary-hover: var(--brand-800);
+  --primary-subtle: var(--brand-50);
+
+  --accent: var(--paprika-500);
+  --accent-hover: var(--paprika-600);
+  --accent-subtle: var(--paprika-50);
+
+  --success: var(--sage-500);
+  --success-subtle: var(--sage-50);
+  --warning: var(--ochre-500);
+  --warning-subtle: var(--ochre-50);
+  --danger: var(--paprika-600);
+  --danger-subtle: var(--paprika-50);
+
+  /* Elevation */
+  --shadow-xs: 0 1px 2px rgba(28, 25, 23, 0.04);
+  --shadow-sm: 0 1px 3px rgba(28, 25, 23, 0.08), 0 1px 2px rgba(28, 25, 23, 0.04);
+  --shadow-md: 0 4px 12px rgba(28, 25, 23, 0.08), 0 2px 4px rgba(28, 25, 23, 0.04);
+  --shadow-lg: 0 12px 28px rgba(28, 25, 23, 0.12), 0 4px 8px rgba(28, 25, 23, 0.06);
+  --shadow-inset: inset 0 1px 2px rgba(28, 25, 23, 0.06);
+
+  /* Radius */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Spacing scale (for reference in inline styles) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Layout */
+  --sidebar-w: 248px;
+  --sidebar-w-collapsed: 68px;
+  --topbar-h: 64px;
+  --content-max: 1320px;
+
+  /* Motion */
+  --ease-smooth: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-spring: cubic-bezier(0.5, 1.5, 0.5, 1);
+  --dur-fast: 120ms;
+  --dur: 200ms;
+  --dur-slow: 320ms;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv11", "ss01";
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-variation-settings: "opsz" 36;
+  letter-spacing: -0.015em;
+  color: var(--text);
+  margin: 0;
+}
+
+h1 { font-size: 2rem; font-variation-settings: "opsz" 72; letter-spacing: -0.025em; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.15rem; }
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+button { cursor: pointer; }
+
+a { color: inherit; text-decoration: none; }
+
+::selection {
+  background: var(--accent-subtle);
+  color: var(--paprika-700);
+}
+
+/* Focus ring */
+:focus-visible {
+  outline: 2px solid var(--brand-500);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Tabular numerals for data */
+.num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--stone-300); border-radius: var(--radius-full); border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: var(--stone-400); background-clip: padding-box; border: 2px solid transparent; }
+
+/* Animation utilities */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
