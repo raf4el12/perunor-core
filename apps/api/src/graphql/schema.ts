@@ -20,6 +20,8 @@ export const typeDefs = `#graphql
     documento(id: ID!): Documento
     kardex(articuloId: ID!, almacenId: ID!, page: Int, limit: Int): KardexPaginado!
     stockActual(almacenId: ID, search: String, page: Int, limit: Int): StockPaginado!
+    reporteCompras(desde: String!, hasta: String!, proveedorId: ID): ReporteCompras!
+    reporteMovimientos(desde: String!, hasta: String!, almacenId: ID, articuloId: ID): ReporteMovimientos!
   }
 
   type Mutation {
@@ -427,6 +429,72 @@ export const typeDefs = `#graphql
     total: Int!
     page: Int!
     limit: Int!
+  }
+
+  type ReporteCompraItem {
+    documentoId: ID!
+    numero: String
+    fecha: String!
+    estado: EstadoDocumento!
+    proveedorId: ID
+    proveedorNombre: String
+    proveedorRuc: String
+    lineas: Int!
+    subtotal: String!
+    igv: String!
+    total: String!
+  }
+
+  type ReporteCompraAgregado {
+    proveedorId: ID
+    proveedorNombre: String
+    proveedorRuc: String
+    documentos: Int!
+    subtotal: String!
+    igv: String!
+    total: String!
+  }
+
+  type ReporteComprasTotales {
+    documentos: Int!
+    subtotal: String!
+    igv: String!
+    total: String!
+  }
+
+  type ReporteCompras {
+    desde: String!
+    hasta: String!
+    detalle: [ReporteCompraItem!]!
+    porProveedor: [ReporteCompraAgregado!]!
+    totales: ReporteComprasTotales!
+  }
+
+  type ReporteMovimientoItem {
+    id: ID!
+    fecha: String!
+    articuloId: ID!
+    articuloCodigo: String!
+    articuloNombre: String!
+    unidad: String!
+    almacenId: ID!
+    almacenNombre: String!
+    movimiento: MovimientoLinea!
+    cantidad: String!
+    costoUnitario: String!
+    costoTotal: String!
+    saldoCantidad: String!
+    referencia: String
+  }
+
+  type ReporteMovimientos {
+    desde: String!
+    hasta: String!
+    items: [ReporteMovimientoItem!]!
+    totalIngresos: String!
+    totalEgresos: String!
+    valorIngresos: String!
+    valorEgresos: String!
   }
 
   input ActualizarDocumentoInput {

@@ -47,7 +47,7 @@ packages/
 - [x] Módulo Settings — Artículo, Almacén, Proceso, Proveedor, Cliente, Conductor, Usuario (CRUD completo: DB → GraphQL → UI)
 - [x] Documento polimórfico (core del ERP) — tipos: compra/procesamiento/salida/factura, máquina de estados borrador→confirmado→anulado, numeración atómica por tipo/año, outbox pattern
 - [x] Inventario / Kardex — tabla `kardex_movimiento`, valuación promedio ponderado, handler consume outbox, UI stock + kardex
-- [ ] Reportes
+- [~] Reportes — compras por período/proveedor ✅, movimientos de almacén ✅, CSV export ✅. Pendientes: costos de procesamiento, alertas stock mínimo.
 
 ## Comandos clave
 ```bash
@@ -76,13 +76,9 @@ PORT=4000
 - Auth: verificar `context.usuarioId` al inicio de cada resolver protegido
 
 ## Próximo paso
-**Reportes operativos**:
-- Compras por período/proveedor (agregados sobre `documento` + `documento_linea`).
-- Movimientos de almacén (kardex filtrado).
-- Análisis de costos de paprika procesada (vincular egreso de materia prima con ingreso de producto terminado vía `documento.tipo=procesamiento`).
-- Exportación CSV.
-
-Considerar también: alertas de stock mínimo (umbral por artículo → query sobre `stockActual`).
+**Reportes avanzados + alertas** (los dos primeros reportes ya están listos):
+- Análisis de costos de paprika procesada — vincular egreso de materia prima con ingreso de producto terminado vía `documento.tipo=procesamiento`, calcular costo real del PT a partir del costo ponderado de los insumos.
+- Alertas de stock mínimo — umbral por artículo (nuevo campo `articulo.stockMinimo`) → query sobre `stockActual` filtrando por `cantidad < stockMinimo`.
 
 ## Módulo Documento (implementado)
 - Tablas: `documento`, `documento_linea`, `contador_documento` (numeración atómica por tipo/año), `outbox_evento`.
@@ -101,3 +97,11 @@ Considerar también: alertas de stock mínimo (umbral por artículo → query so
 - Stock actual: query con `DISTINCT ON (articulo_id, almacen_id) ... ORDER BY creado_en DESC` sobre `kardex_movimiento`.
 - Saldos negativos permitidos (se muestran en rojo en UI) — escenario real de data parcial.
 - Limitación conocida: costo de producto terminado en `procesamiento` usa `precioUnitario` de la línea directamente (no se calcula desde el costo real de los insumos egresados).
+
+## Módulo Reportes (parcial)
+- Resolver `apps/api/src/graphql/resolvers/reporte.ts` con dos queries:
+  - `reporteCompras(desde, hasta, proveedorId?)` — detalle + agregado `porProveedor` (calculado en memoria con `Map`, ordenado por total desc) + totales.
+  - `reporteMovimientos(desde, hasta, almacenId?, articuloId?)` — kardex filtrado con joins a `articulo` y `almacen`, totales de cantidad/valor por ingreso/egreso.
+- Validación de rango: `validarRango` enforces `YYYY-MM-DD` y `desde <= hasta`. Para `reporteMovimientos`, convierte fechas a timestamps (`00:00:00Z` / `23:59:59.999Z`) porque `kardex_movimiento.fecha` es `timestamp`.
+- Helper CSV en `apps/web/src/lib/csv.ts` — escapa `,`, `"`, `\n` y emite con BOM UTF-8 (compatible Excel). Usado por ambas páginas de reportes.
+- UI en `apps/web/src/pages/reportes/` — ambas páginas usan `useLazyQuery` (ejecución on-demand), default range = primer día del mes a hoy.

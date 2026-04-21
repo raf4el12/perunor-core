@@ -48,6 +48,32 @@ export function HomePage() {
       </div>
 
       <h2 style={{ color: "#1a3a5c", fontSize: "1rem", marginTop: "2rem", marginBottom: "0.75rem" }}>
+        Reportes
+      </h2>
+      <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginBottom: "1rem" }}>
+        <Link
+          to="/reportes/compras"
+          style={{
+            display: "block", padding: "1rem 1.5rem", background: "#2c5282",
+            borderRadius: 8, textDecoration: "none", color: "#fff", fontWeight: 600,
+            fontSize: "0.9rem",
+          }}
+        >
+          Compras
+        </Link>
+        <Link
+          to="/reportes/movimientos"
+          style={{
+            display: "block", padding: "1rem 1.5rem", background: "#2c5282",
+            borderRadius: 8, textDecoration: "none", color: "#fff", fontWeight: 600,
+            fontSize: "0.9rem",
+          }}
+        >
+          Movimientos
+        </Link>
+      </div>
+
+      <h2 style={{ color: "#1a3a5c", fontSize: "1rem", marginTop: "2rem", marginBottom: "0.75rem" }}>
         Configuración
       </h2>
       <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>

@@ -10,6 +10,7 @@ import { conductorResolvers } from "./conductor";
 import { usuarioResolvers } from "./usuario";
 import { documentoResolvers } from "./documento";
 import { kardexResolvers } from "./kardex";
+import { reporteResolvers } from "./reporte";
 import type { ApolloContext } from "../../context";
 import { GraphQLError } from "graphql";
 
@@ -30,6 +31,7 @@ export const resolvers = {
     ...usuarioResolvers.Query,
     ...documentoResolvers.Query,
     ...kardexResolvers.Query,
+    ...reporteResolvers.Query,
   },
   Mutation: {
     ...authResolvers.Mutation,

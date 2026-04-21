@@ -12,6 +12,8 @@ import { DocumentosPage } from "./pages/documentos/DocumentosPage";
 import { DocumentoEditorPage } from "./pages/documentos/DocumentoEditorPage";
 import { KardexPage } from "./pages/inventario/KardexPage";
 import { StockPage } from "./pages/inventario/StockPage";
+import { ReporteComprasPage } from "./pages/reportes/ReporteComprasPage";
+import { ReporteMovimientosPage } from "./pages/reportes/ReporteMovimientosPage";
 import { useAuth } from "./hooks/useAuth";
 
 export function App() {
@@ -43,6 +45,8 @@ export function App() {
       <Route path="/documentos/:id" element={<DocumentoEditorPage />} />
       <Route path="/inventario/stock" element={<StockPage />} />
       <Route path="/inventario/kardex" element={<KardexPage />} />
+      <Route path="/reportes/compras" element={<ReporteComprasPage />} />
+      <Route path="/reportes/movimientos" element={<ReporteMovimientosPage />} />
       <Route path="/*" element={<Navigate to="/" replace />} />
     </Routes>
   );
