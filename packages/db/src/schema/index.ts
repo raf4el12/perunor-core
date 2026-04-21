@@ -9,3 +9,4 @@ export * from "./documento";
 export * from "./documento_linea";
 export * from "./outbox_evento";
 export * from "./contador_documento";
+export * from "./kardex";

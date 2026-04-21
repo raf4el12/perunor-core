@@ -46,7 +46,7 @@ packages/
 - [ ] Primer `bun install` + `bun db:push` (pendiente ejecutar)
 - [x] Módulo Settings — Artículo, Almacén, Proceso, Proveedor, Cliente, Conductor, Usuario (CRUD completo: DB → GraphQL → UI)
 - [x] Documento polimórfico (core del ERP) — tipos: compra/procesamiento/salida/factura, máquina de estados borrador→confirmado→anulado, numeración atómica por tipo/año, outbox pattern
-- [ ] Inventario / Kardex (consumir eventos del outbox)
+- [x] Inventario / Kardex — tabla `kardex_movimiento`, valuación promedio ponderado, handler consume outbox, UI stock + kardex
 - [ ] Reportes
 
 ## Comandos clave
@@ -76,13 +76,13 @@ PORT=4000
 - Auth: verificar `context.usuarioId` al inicio de cada resolver protegido
 
 ## Próximo paso
-**Inventario / Kardex**: consumir eventos `documento.confirmado` del outbox para:
-- Crear movimientos de kardex por artículo/almacén (ingreso/egreso según tipo de documento y línea).
-- Valuación (FIFO o promedio ponderado — definir).
-- Vista de saldo por almacén/artículo.
-- Alertas de stock mínimo.
+**Reportes operativos**:
+- Compras por período/proveedor (agregados sobre `documento` + `documento_linea`).
+- Movimientos de almacén (kardex filtrado).
+- Análisis de costos de paprika procesada (vincular egreso de materia prima con ingreso de producto terminado vía `documento.tipo=procesamiento`).
+- Exportación CSV.
 
-El handler actual en `apps/api/src/outbox/worker.ts` solo loguea los eventos — ahí se implementa la lógica de kardex.
+Considerar también: alertas de stock mínimo (umbral por artículo → query sobre `stockActual`).
 
 ## Módulo Documento (implementado)
 - Tablas: `documento`, `documento_linea`, `contador_documento` (numeración atómica por tipo/año), `outbox_evento`.
@@ -90,3 +90,14 @@ El handler actual en `apps/api/src/outbox/worker.ts` solo loguea los eventos —
 - Numeración: se asigna en `confirmarDocumento` vía `INSERT ... ON CONFLICT DO UPDATE` sobre `contador_documento`. Prefijos: `C` (compra), `P` (procesamiento), `S` (salida), `F` (factura).
 - Outbox: al confirmar/anular se inserta fila en `outbox_evento`; worker poll cada 5s, máx 5 reintentos por fila.
 - Decimales: `numeric(14,4)` en DB, expuestos como `String` en GraphQL (evita pérdida de precisión).
+
+## Módulo Kardex (implementado)
+- Tabla: `kardex_movimiento` con saldo post-movimiento cacheado (`saldo_cantidad`, `saldo_costo`, `saldo_costo_unitario`) — evita recomputar todo el historial.
+- Valuación: **promedio ponderado móvil**. En ingreso: `saldoCosto += cant * costoUnit`, recalcula promedio. En egreso: usa `saldoCostoUnitario` previo como costo de salida.
+- Handler en `apps/api/src/outbox/handlers/kardex.ts`:
+  - `documento.confirmado` → inserta una fila de kardex por cada `documento_linea`, respetando `movimiento` (ingreso/egreso) y almacén (para `procesamiento`: ingresos van a `almacen_destino_id`).
+  - `documento.anulado` → inserta movimientos inversos (mismas cantidades y costos originales), con `referencia = ANULA-{numero}`.
+- Idempotencia: el handler checa si ya existen filas para `(documento_id, referencia)` antes de insertar.
+- Stock actual: query con `DISTINCT ON (articulo_id, almacen_id) ... ORDER BY creado_en DESC` sobre `kardex_movimiento`.
+- Saldos negativos permitidos (se muestran en rojo en UI) — escenario real de data parcial.
+- Limitación conocida: costo de producto terminado en `procesamiento` usa `precioUnitario` de la línea directamente (no se calcula desde el costo real de los insumos egresados).

@@ -25,6 +25,26 @@ export function HomePage() {
         >
           Documentos
         </Link>
+        <Link
+          to="/inventario/stock"
+          style={{
+            display: "block", padding: "1rem 1.5rem", background: "#1a3a5c",
+            borderRadius: 8, textDecoration: "none", color: "#fff", fontWeight: 600,
+            fontSize: "0.9rem",
+          }}
+        >
+          Stock
+        </Link>
+        <Link
+          to="/inventario/kardex"
+          style={{
+            display: "block", padding: "1rem 1.5rem", background: "#1a3a5c",
+            borderRadius: 8, textDecoration: "none", color: "#fff", fontWeight: 600,
+            fontSize: "0.9rem",
+          }}
+        >
+          Kardex
+        </Link>
       </div>
 
       <h2 style={{ color: "#1a3a5c", fontSize: "1rem", marginTop: "2rem", marginBottom: "0.75rem" }}>

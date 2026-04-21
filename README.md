@@ -135,12 +135,13 @@ Cada maestro sigue la **misma arquitectura** (replicable):
    - Outbox pattern para eventos (`documento.confirmado`, `documento.anulado`)
    - UI: lista con filtros (tipo/estado) + editor con líneas dinámicas
 
-2. **Kardex e Inventario** (siguiente)
-   - Kardex: movimientos de stock por artículo/almacén
-   - Valuación: FIFO, promedio ponderado
-   - Alertas de stock mínimo
+2. **Kardex e Inventario** ✅
+   - Kardex: movimientos de stock por artículo/almacén con saldo cacheado
+   - Valuación: promedio ponderado móvil
+   - Handler del outbox consume `documento.confirmado`/`documento.anulado`
+   - UI: stock actual (por almacén, búsqueda) + kardex (por artículo/almacén)
 
-3. **Reportes operativos**
+3. **Reportes operativos** (siguiente)
    - Compras por período/proveedor
    - Movimientos de almacén
    - Análisis de costos (paprika procesada)

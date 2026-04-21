@@ -18,6 +18,8 @@ export const typeDefs = `#graphql
     usuario(id: ID!): Usuario
     documentos(page: Int, limit: Int, tipo: TipoDocumento, estado: EstadoDocumento, search: String): DocumentoPaginado!
     documento(id: ID!): Documento
+    kardex(articuloId: ID!, almacenId: ID!, page: Int, limit: Int): KardexPaginado!
+    stockActual(almacenId: ID, search: String, page: Int, limit: Int): StockPaginado!
   }
 
   type Mutation {
@@ -380,6 +382,51 @@ export const typeDefs = `#graphql
     conductorId: ID
     procesoId: ID
     lineas: [CrearDocumentoLineaInput!]!
+  }
+
+  type KardexMovimiento {
+    id: ID!
+    articuloId: ID!
+    articulo: Articulo
+    almacenId: ID!
+    almacen: Almacen
+    fecha: String!
+    movimiento: MovimientoLinea!
+    cantidad: String!
+    costoUnitario: String!
+    costoTotal: String!
+    saldoCantidad: String!
+    saldoCosto: String!
+    saldoCostoUnitario: String!
+    documentoId: ID
+    documento: Documento
+    referencia: String
+    creadoEn: String!
+  }
+
+  type KardexPaginado {
+    items: [KardexMovimiento!]!
+    total: Int!
+    page: Int!
+    limit: Int!
+  }
+
+  type StockItem {
+    articuloId: ID!
+    articulo: Articulo
+    almacenId: ID!
+    almacen: Almacen
+    cantidad: String!
+    costo: String!
+    costoUnitario: String!
+    ultimaFecha: String
+  }
+
+  type StockPaginado {
+    items: [StockItem!]!
+    total: Int!
+    page: Int!
+    limit: Int!
   }
 
   input ActualizarDocumentoInput {

@@ -10,6 +10,8 @@ import { ConductoresPage } from "./pages/settings/ConductoresPage";
 import { UsuariosPage } from "./pages/settings/UsuariosPage";
 import { DocumentosPage } from "./pages/documentos/DocumentosPage";
 import { DocumentoEditorPage } from "./pages/documentos/DocumentoEditorPage";
+import { KardexPage } from "./pages/inventario/KardexPage";
+import { StockPage } from "./pages/inventario/StockPage";
 import { useAuth } from "./hooks/useAuth";
 
 export function App() {
@@ -39,6 +41,8 @@ export function App() {
       <Route path="/documentos" element={<DocumentosPage />} />
       <Route path="/documentos/nuevo" element={<DocumentoEditorPage />} />
       <Route path="/documentos/:id" element={<DocumentoEditorPage />} />
+      <Route path="/inventario/stock" element={<StockPage />} />
+      <Route path="/inventario/kardex" element={<KardexPage />} />
       <Route path="/*" element={<Navigate to="/" replace />} />
     </Routes>
   );

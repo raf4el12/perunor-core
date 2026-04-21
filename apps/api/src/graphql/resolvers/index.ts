@@ -9,6 +9,7 @@ import { clienteResolvers } from "./cliente";
 import { conductorResolvers } from "./conductor";
 import { usuarioResolvers } from "./usuario";
 import { documentoResolvers } from "./documento";
+import { kardexResolvers } from "./kardex";
 import type { ApolloContext } from "../../context";
 import { GraphQLError } from "graphql";
 
@@ -28,6 +29,7 @@ export const resolvers = {
     ...conductorResolvers.Query,
     ...usuarioResolvers.Query,
     ...documentoResolvers.Query,
+    ...kardexResolvers.Query,
   },
   Mutation: {
     ...authResolvers.Mutation,
@@ -42,4 +44,6 @@ export const resolvers = {
   },
   Documento: documentoResolvers.Documento,
   DocumentoLinea: documentoResolvers.DocumentoLinea,
+  KardexMovimiento: kardexResolvers.KardexMovimiento,
+  StockItem: kardexResolvers.StockItem,
 };

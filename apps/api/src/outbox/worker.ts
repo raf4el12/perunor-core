@@ -1,5 +1,6 @@
 import { and, asc, isNull, sql, lt } from "drizzle-orm";
 import { db, outboxEvento } from "@perunor/db";
+import { procesarConfirmacion, procesarAnulacion } from "./handlers/kardex";
 
 const POLL_INTERVAL_MS = 5000;
 const BATCH_SIZE = 20;
@@ -15,18 +16,12 @@ type Handler = (evento: {
 
 const handlers: Record<string, Handler> = {
   "documento.confirmado": async (e) => {
-    console.log(`[outbox] documento.confirmado recibido`, {
-      id: e.id,
-      documentoId: e.entidadId,
-      payload: e.payload,
-    });
+    const r = await db.transaction(async (tx) => procesarConfirmacion(tx, e.entidadId));
+    console.log(`[outbox] documento.confirmado ${e.entidadId}: ${r.procesadas} movs${r.idempotente ? " (ya procesado)" : ""}`);
   },
   "documento.anulado": async (e) => {
-    console.log(`[outbox] documento.anulado recibido`, {
-      id: e.id,
-      documentoId: e.entidadId,
-      payload: e.payload,
-    });
+    const r = await db.transaction(async (tx) => procesarAnulacion(tx, e.entidadId));
+    console.log(`[outbox] documento.anulado ${e.entidadId}: ${r.procesadas} reversos${r.idempotente ? " (ya procesado)" : ""}`);
   },
 };
 
