@@ -19,15 +19,16 @@
   --stone-800: #292524;
   --stone-900: #1c1917;
 
-  /* Brand — deep midnight with warm undertone */
-  --brand-50: #f0f4f8;
-  --brand-100: #d9e2ec;
-  --brand-200: #bcccdc;
-  --brand-500: #2c5282;
-  --brand-600: #1e3a5f;
-  --brand-700: #162c47;
-  --brand-800: #0f2036;
-  --brand-900: #081223;
+  /* Brand — paprika verde, olivo natural */
+  --brand-50: #eef5ee;
+  --brand-100: #d7e6d7;
+  --brand-200: #b5d0b5;
+  --brand-400: #6a9a6c;
+  --brand-500: #4c7d4e;
+  --brand-600: #3a6a3e;
+  --brand-700: #2d5532;
+  --brand-800: #1f3d24;
+  --brand-900: #14291a;
 
   /* Accents */
   --paprika-50: #fef2f2;
@@ -199,4 +200,14 @@ a { color: inherit; text-decoration: none; }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* Responsive: hide sidebar + show mobile trigger below 1024px */
+.mobile-menu-btn { display: none; }
+
+@media (max-width: 1023px) {
+  .app-sidebar { transform: translateX(-100%); }
+  .app-sidebar.is-mobile-open { transform: translateX(0); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+  .app-main { padding-left: 0 !important; padding-top: 3.5rem !important; }
+  .mobile-menu-btn { display: flex !important; }
 }

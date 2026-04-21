@@ -1,18 +1,19 @@
 import { gql, useQuery } from "@apollo/client";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { Card, CardHeader } from "../components/ui/Card";
+import { KpiCard } from "../components/ui/KpiCard";
+import { ModuleCard } from "../components/ui/ModuleCard";
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
-import { EmptyState } from "../components/ui/EmptyState";
 import {
-  IconDocument, IconBox, IconLedger, IconChart, IconSpark, IconPlus,
-  IconChevronRight,
+  IconDollar, IconFactory, IconTruck, IconFileCheck,
+  IconCart, IconBox, IconChart, IconSettings, IconDocument,
+  IconAlert, IconArrowRight,
 } from "../components/ui/Icon";
 
 const DASHBOARD_QUERY = gql`
   query Dashboard {
-    documentos(page: 1, limit: 6) {
+    documentos(page: 1, limit: 5) {
       items { id tipo numero fecha estado total proveedor { nombre } cliente { nombre } }
       total
     }
@@ -22,16 +23,6 @@ const DASHBOARD_QUERY = gql`
   }
 `;
 
-const formatoFechaCorta = (iso: string) => {
-  const d = new Date(iso);
-  return d.toLocaleDateString("es-PE", { day: "2-digit", month: "short" });
-};
-
-const fmtMoney = (n: string | number) => {
-  const v = typeof n === "string" ? Number(n) : n;
-  return new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN", minimumFractionDigits: 2 }).format(v);
-};
-
 const tipoLabel: Record<string, string> = {
   compra: "Compra",
   procesamiento: "Procesamiento",
@@ -39,196 +30,262 @@ const tipoLabel: Record<string, string> = {
   factura: "Factura",
 };
 
+const fmtMoney = (n: string | number) => {
+  const v = typeof n === "string" ? Number(n) : n;
+  return new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN", minimumFractionDigits: 2 }).format(v);
+};
+
+const fmtDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("es-PE", { day: "2-digit", month: "2-digit", year: "numeric" });
+
+const estadoTone: Record<string, "borrador" | "confirmado" | "anulado"> = {
+  borrador: "borrador", confirmado: "confirmado", anulado: "anulado",
+};
+
 export function HomePage() {
   const { usuario } = useAuth();
   const { data, loading } = useQuery(DASHBOARD_QUERY);
 
   const docs = data?.documentos?.items ?? [];
-  const stats = [
-    { label: "Documentos", value: data?.documentos?.total ?? 0, icon: <IconDocument />, tone: "brand" as const, to: "/documentos" },
-    { label: "SKUs activos", value: data?.articulos?.total ?? 0, icon: <IconBox />, tone: "accent" as const, to: "/settings/articulos" },
-    { label: "Stock posiciones", value: data?.stockActual?.total ?? 0, icon: <IconLedger />, tone: "success" as const, to: "/inventario/stock" },
-    { label: "Almacenes", value: data?.almacenes?.total ?? 0, icon: <IconChart />, tone: "warning" as const, to: "/inventario/stock" },
-  ];
+  const totalDocs = data?.documentos?.total ?? 0;
+  const totalSkus = data?.articulos?.total ?? 0;
+  const totalStock = data?.stockActual?.total ?? 0;
+  const totalAlmacenes = data?.almacenes?.total ?? 0;
 
   const firstName = usuario?.nombre?.split(" ")[0] ?? "colega";
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Buenos días" : hour < 19 ? "Buenas tardes" : "Buenas noches";
 
   return (
     <>
-      {/* Hero greeting */}
-      <div
-        style={{
-          position: "relative",
-          borderRadius: "var(--radius-xl)",
-          padding: "2.25rem 2.25rem 2rem",
-          background: "linear-gradient(135deg, var(--brand-800) 0%, var(--brand-700) 60%, var(--brand-600) 100%)",
-          color: "#fff",
-          overflow: "hidden",
-          marginBottom: "1.75rem",
-          boxShadow: "var(--shadow-md)",
-        }}
-      >
-        <div
-          aria-hidden
-          style={{
-            position: "absolute", inset: 0,
-            backgroundImage: "radial-gradient(circle at 85% 10%, rgba(197, 48, 48, 0.35) 0%, transparent 50%), radial-gradient(circle at 15% 90%, rgba(194, 130, 26, 0.25) 0%, transparent 45%)",
-          }}
-        />
-        <div style={{ position: "relative", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: "2rem", flexWrap: "wrap" }}>
-          <div style={{ maxWidth: 620 }}>
-            <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", opacity: 0.7, marginBottom: "0.6rem", display: "inline-flex", alignItems: "center", gap: "0.45rem" }}>
-              <IconSpark size={14} /> Resumen del día
-            </div>
-            <h1 style={{ fontSize: "2.3rem", lineHeight: 1.05, color: "#fff", marginBottom: "0.5rem", fontWeight: 600 }}>
-              {greeting}, <span style={{ fontStyle: "italic", color: "var(--ochre-100)" }}>{firstName}</span>.
-            </h1>
-            <p style={{ opacity: 0.82, fontSize: "0.98rem", margin: 0, lineHeight: 1.55 }}>
-              Tu operación agro-industrial en una vista. Lo último en compras, kardex y procesamiento —
-              sin fricción, con costos reales y trazabilidad por documento.
-            </p>
-          </div>
-          <div style={{ display: "flex", gap: "0.6rem" }}>
-            <Link to="/documentos/nuevo">
-              <Button variant="accent" leftIcon={<IconPlus size={16} />}>Nuevo documento</Button>
-            </Link>
-            <Link to="/reportes/compras">
-              <Button variant="ghost" style={{ color: "#fff", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.18)" }}>
-                Ver reportes
-              </Button>
-            </Link>
-          </div>
-        </div>
+      {/* Greeting */}
+      <div style={{ marginBottom: "1.75rem" }}>
+        <h1 style={{ fontSize: "1.75rem", marginBottom: "0.25rem" }}>
+          Bienvenido, {firstName}
+        </h1>
+        <p style={{ color: "var(--text-muted)", fontSize: "0.92rem", margin: 0 }}>
+          Resumen de operaciones y acceso rápido a módulos.
+        </p>
       </div>
 
-      {/* KPI cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem", marginBottom: "1.75rem" }}>
-        {stats.map((s) => (
-          <Link key={s.label} to={s.to} style={{ display: "block" }}>
-            <Card
-              padding="md"
-              style={{
-                transition: "transform var(--dur) var(--ease-smooth), box-shadow var(--dur)",
-                cursor: "pointer",
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "var(--shadow-md)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "var(--shadow-xs)"; }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem" }}>
-                <Badge tone={s.tone} dot={false}>{s.label}</Badge>
-                <span style={{ color: "var(--text-subtle)", display: "flex" }}>{s.icon}</span>
-              </div>
-              <div className="num" style={{ fontFamily: "var(--font-display)", fontSize: "2rem", fontWeight: 600, color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1 }}>
-                {loading ? "—" : s.value.toLocaleString("es-PE")}
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: "0.6rem", color: "var(--text-muted)", fontSize: "0.78rem" }}>
-                Ver detalle <IconChevronRight size={12} />
-              </div>
-            </Card>
-          </Link>
-        ))}
-      </div>
-
-      {/* Content grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 2fr) minmax(0, 1fr)", gap: "1.25rem" }}>
-        <Card padding="md">
-          <CardHeader
-            title="Documentos recientes"
-            subtitle="Los últimos 6 movimientos registrados en el sistema."
-            actions={
-              <Link to="/documentos">
-                <Button size="sm" variant="ghost" rightIcon={<IconChevronRight size={14} />}>Ver todos</Button>
-              </Link>
-            }
+      {/* KPIs */}
+      <section style={{ marginBottom: "2rem" }}>
+        <SectionHeader>Indicadores del día</SectionHeader>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1rem" }}>
+          <KpiCard
+            title="Documentos"
+            value={loading ? "—" : totalDocs.toLocaleString("es-PE")}
+            subtitle="Total histórico"
+            icon={<IconDollar size={22} />}
+            variant="success"
           />
-          {docs.length === 0 ? (
-            <EmptyState
-              icon={<IconDocument size={24} />}
-              title="Aún no hay documentos"
-              description="Crea el primer documento para iniciar la operación — compra, procesamiento, salida o factura."
-              action={
-                <Link to="/documentos/nuevo">
-                  <Button variant="primary" leftIcon={<IconPlus size={16} />}>Crear documento</Button>
-                </Link>
-              }
-            />
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.15rem" }}>
-              {docs.map((d: any) => (
-                <Link
-                  key={d.id}
-                  to={`/documentos/${d.id}`}
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "60px 1fr auto auto",
-                    alignItems: "center",
-                    gap: "1rem",
-                    padding: "0.75rem 0.85rem",
-                    borderRadius: "var(--radius-md)",
-                    transition: "background var(--dur)",
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--surface-alt)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-                >
-                  <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                    {formatoFechaCorta(d.fecha)}
-                  </div>
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: "0.88rem", fontWeight: 600, color: "var(--text)" }}>
-                      {d.numero ?? <span style={{ color: "var(--text-subtle)" }}>Sin número</span>} · {tipoLabel[d.tipo] ?? d.tipo}
-                    </div>
-                    <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {d.proveedor?.nombre ?? d.cliente?.nombre ?? "Sin contraparte"}
-                    </div>
-                  </div>
-                  <Badge tone={d.estado as any}>{d.estado}</Badge>
-                  <div className="num" style={{ fontSize: "0.9rem", fontWeight: 700, color: "var(--text)", minWidth: 110, textAlign: "right" }}>
-                    {fmtMoney(d.total)}
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </Card>
+          <KpiCard
+            title="SKUs activos"
+            value={loading ? "—" : totalSkus.toLocaleString("es-PE")}
+            subtitle="Artículos en catálogo"
+            icon={<IconFactory size={22} />}
+            variant="info"
+          />
+          <KpiCard
+            title="Stock posiciones"
+            value={loading ? "—" : totalStock.toLocaleString("es-PE")}
+            subtitle="Artículo × almacén con saldo"
+            icon={<IconTruck size={22} />}
+            variant="default"
+          />
+          <KpiCard
+            title="Almacenes"
+            value={loading ? "—" : totalAlmacenes.toLocaleString("es-PE")}
+            subtitle="Puntos de inventario"
+            icon={<IconFileCheck size={22} />}
+            variant="warning"
+          />
+        </div>
+      </section>
 
-        <Card padding="md" tone="sunken">
-          <CardHeader title="Atajos" subtitle="Las tareas que más hacés." />
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            {[
-              { to: "/documentos/nuevo", label: "Nueva compra", desc: "Ingreso de materia prima", icon: <IconDocument /> },
-              { to: "/inventario/kardex", label: "Revisar kardex", desc: "Historial por artículo", icon: <IconLedger /> },
-              { to: "/reportes/compras", label: "Reporte de compras", desc: "Exportar CSV por período", icon: <IconChart /> },
-              { to: "/inventario/stock", label: "Stock actual", desc: "Posiciones por almacén", icon: <IconBox /> },
-            ].map((a) => (
-              <Link
-                key={a.to}
-                to={a.to}
-                style={{
-                  display: "flex", alignItems: "center", gap: "0.75rem",
-                  padding: "0.7rem 0.85rem",
-                  background: "var(--surface)",
-                  border: "1px solid var(--border)",
-                  borderRadius: "var(--radius-md)",
-                  transition: "border-color var(--dur), transform var(--dur)",
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--brand-500)"; e.currentTarget.style.transform = "translateX(2px)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.transform = ""; }}
-              >
-                <div style={{ width: 36, height: 36, borderRadius: "var(--radius-md)", background: "var(--brand-50)", color: "var(--brand-700)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  {a.icon}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: "0.88rem", fontWeight: 600, color: "var(--text)" }}>{a.label}</div>
-                  <div style={{ fontSize: "0.76rem", color: "var(--text-muted)" }}>{a.desc}</div>
-                </div>
-                <IconChevronRight size={14} />
-              </Link>
-            ))}
-          </div>
-        </Card>
+      {/* Module cards */}
+      <section style={{ marginBottom: "2rem" }}>
+        <SectionHeader>Acceso rápido</SectionHeader>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1rem" }}>
+          <ModuleCard
+            title="Compras"
+            description="Registrar ingresos de materia prima de proveedores"
+            to="/documentos?tipo=compra"
+            icon={<IconCart size={20} />}
+            color="primary"
+          />
+          <ModuleCard
+            title="Procesamiento"
+            description="Control de transformación y secado de paprika"
+            to="/documentos?tipo=procesamiento"
+            icon={<IconFactory size={20} />}
+            color="blue"
+          />
+          <ModuleCard
+            title="Salidas"
+            description="Gestionar despachos y salidas de producto"
+            to="/documentos?tipo=salida"
+            icon={<IconTruck size={20} />}
+            color="amber"
+          />
+          <ModuleCard
+            title="Inventario"
+            description="Consultar stock actual por almacén y artículo"
+            to="/inventario/stock"
+            icon={<IconBox size={20} />}
+            color="red"
+          />
+          <ModuleCard
+            title="Reportes"
+            description="Generar informes de operaciones y análisis"
+            to="/reportes/compras"
+            icon={<IconChart size={20} />}
+            color="emerald"
+          />
+          <ModuleCard
+            title="Configuración"
+            description="Administrar artículos, almacenes y proveedores"
+            to="/settings/articulos"
+            icon={<IconSettings size={20} />}
+            color="slate"
+          />
+        </div>
+      </section>
+
+      {/* Stock alerts + recent documents */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", gap: "1.25rem" }}>
+        <StockAlertsCard />
+        <RecentDocumentsCard docs={docs} loading={loading} />
       </div>
     </>
   );
 }
+
+function SectionHeader({ children }: { children: React.ReactNode }) {
+  return (
+    <h2
+      style={{
+        fontSize: "0.78rem", fontWeight: 700,
+        color: "var(--text-muted)",
+        textTransform: "uppercase", letterSpacing: "0.1em",
+        marginBottom: "0.85rem",
+        fontFamily: "var(--font-body)",
+      }}
+    >
+      {children}
+    </h2>
+  );
+}
+
+function StockAlertsCard() {
+  return (
+    <div
+      style={{
+        background: "var(--surface)",
+        border: "1px solid var(--border)",
+        borderRadius: "var(--radius-lg)",
+        boxShadow: "var(--shadow-xs)",
+        overflow: "hidden",
+      }}
+    >
+      <div style={{ padding: "1rem 1.1rem 0.85rem", display: "flex", alignItems: "center", gap: "0.55rem", borderBottom: "1px solid var(--border)" }}>
+        <span style={{ color: "var(--ochre-500)", display: "flex" }}>
+          <IconAlert size={18} />
+        </span>
+        <h3 style={{ fontSize: "0.95rem", margin: 0, fontWeight: 700, fontFamily: "var(--font-body)", letterSpacing: "-0.01em" }}>
+          Alertas de stock
+        </h3>
+      </div>
+      <div style={{ padding: "2rem 1.1rem", textAlign: "center", color: "var(--text-muted)", fontSize: "0.85rem" }}>
+        No hay alertas de stock crítico.
+        <div style={{ fontSize: "0.75rem", marginTop: "0.35rem", color: "var(--text-subtle)" }}>
+          Configura un mínimo por artículo para activar alertas.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RecentDocumentsCard({ docs, loading }: { docs: any[]; loading: boolean }) {
+  return (
+    <div
+      style={{
+        background: "var(--surface)",
+        border: "1px solid var(--border)",
+        borderRadius: "var(--radius-lg)",
+        boxShadow: "var(--shadow-xs)",
+        overflow: "hidden",
+      }}
+    >
+      <div style={{ padding: "1rem 1.1rem 0.85rem", display: "flex", alignItems: "center", gap: "0.55rem", borderBottom: "1px solid var(--border)" }}>
+        <span style={{ color: "var(--text-muted)", display: "flex" }}>
+          <IconDocument size={18} />
+        </span>
+        <h3 style={{ fontSize: "0.95rem", margin: 0, fontWeight: 700, fontFamily: "var(--font-body)", letterSpacing: "-0.01em", flex: 1 }}>
+          Últimos documentos
+        </h3>
+        <Link to="/documentos">
+          <Button size="sm" variant="ghost" rightIcon={<IconArrowRight size={14} />}>Ver todos</Button>
+        </Link>
+      </div>
+
+      {loading && docs.length === 0 ? (
+        <div style={{ padding: "2rem 1.1rem", textAlign: "center", color: "var(--text-muted)", fontSize: "0.85rem" }}>
+          Cargando…
+        </div>
+      ) : docs.length === 0 ? (
+        <div style={{ padding: "2rem 1.1rem", textAlign: "center", color: "var(--text-muted)", fontSize: "0.85rem" }}>
+          Aún no hay documentos registrados.
+        </div>
+      ) : (
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+          <thead>
+            <tr style={{ background: "var(--surface-alt)" }}>
+              <th style={thStyle}>Documento</th>
+              <th style={thStyle}>Tipo</th>
+              <th style={thStyle}>Fecha</th>
+              <th style={thStyle}>Estado</th>
+              <th style={{ ...thStyle, textAlign: "right", paddingRight: "1.1rem" }}>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {docs.map((d) => (
+              <tr key={d.id} style={{ borderTop: "1px solid var(--border)" }}>
+                <td style={{ ...tdStyle, paddingLeft: "1.1rem" }}>
+                  <Link to={`/documentos/${d.id}`} style={{ color: "var(--brand-700)", fontFamily: "var(--font-mono)", fontWeight: 600, fontSize: "0.82rem" }}>
+                    {d.numero ?? <span style={{ color: "var(--text-subtle)" }}>s/n</span>}
+                  </Link>
+                  <div style={{ fontSize: "0.73rem", color: "var(--text-muted)", marginTop: 2 }}>
+                    {d.proveedor?.nombre ?? d.cliente?.nombre ?? "—"}
+                  </div>
+                </td>
+                <td style={{ ...tdStyle, color: "var(--text-muted)" }}>{tipoLabel[d.tipo] ?? d.tipo}</td>
+                <td style={{ ...tdStyle, fontFamily: "var(--font-mono)", fontSize: "0.8rem" }}>{fmtDate(d.fecha)}</td>
+                <td style={tdStyle}>
+                  <Badge tone={estadoTone[d.estado] ?? "neutral"}>{d.estado}</Badge>
+                </td>
+                <td style={{ ...tdStyle, textAlign: "right", paddingRight: "1.1rem", fontFamily: "var(--font-mono)", fontWeight: 600 }}>
+                  {fmtMoney(d.total)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
+const thStyle: React.CSSProperties = {
+  textAlign: "left",
+  padding: "0.55rem 0.75rem",
+  fontSize: "0.68rem",
+  fontWeight: 700,
+  color: "var(--text-muted)",
+  textTransform: "uppercase",
+  letterSpacing: "0.06em",
+};
+
+const tdStyle: React.CSSProperties = {
+  padding: "0.65rem 0.75rem",
+  color: "var(--text)",
+  verticalAlign: "middle",
+};

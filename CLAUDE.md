@@ -105,3 +105,9 @@ PORT=4000
 - Validación de rango: `validarRango` enforces `YYYY-MM-DD` y `desde <= hasta`. Para `reporteMovimientos`, convierte fechas a timestamps (`00:00:00Z` / `23:59:59.999Z`) porque `kardex_movimiento.fecha` es `timestamp`.
 - Helper CSV en `apps/web/src/lib/csv.ts` — escapa `,`, `"`, `\n` y emite con BOM UTF-8 (compatible Excel). Usado por ambas páginas de reportes.
 - UI en `apps/web/src/pages/reportes/` — ambas páginas usan `useLazyQuery` (ejecución on-demand), default range = primer día del mes a hoy.
+
+
+## Referencia de UI (v0)
+- Los componentes de referencia para el diseño se encuentran en `./packages/v0-reference`.
+- Usa estos archivos exclusivamente para copiar estilos de Tailwind, estructura de componentes React y animaciones.
+- No intentes importar directamente desde esta carpeta en el código de producción de `./apps/`. En su lugar, recrea los componentes necesarios en la app correspondiente.

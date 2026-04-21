@@ -241,3 +241,75 @@ export function IconMenu({ size, ...p }: IconProps) {
     </svg>
   );
 }
+
+export function IconBell({ size, ...p }: IconProps) {
+  return (
+    <svg {...svgBase(size)} {...p}>
+      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+    </svg>
+  );
+}
+
+export function IconChevronLeft({ size, ...p }: IconProps) {
+  return (
+    <svg {...svgBase(size)} {...p}>
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+  );
+}
+
+export function IconArrowRight({ size, ...p }: IconProps) {
+  return (
+    <svg {...svgBase(size)} {...p}>
+      <path d="M5 12h14M12 5l7 7-7 7" />
+    </svg>
+  );
+}
+
+export function IconCart({ size, ...p }: IconProps) {
+  return (
+    <svg {...svgBase(size)} {...p}>
+      <circle cx="9" cy="21" r="1" />
+      <circle cx="19" cy="21" r="1" />
+      <path d="M3 3h2l2.68 13.39a2 2 0 0 0 2 1.61h8.64a2 2 0 0 0 2-1.61L23 6H6" />
+    </svg>
+  );
+}
+
+export function IconFactory({ size, ...p }: IconProps) {
+  return (
+    <svg {...svgBase(size)} {...p}>
+      <path d="M2 20V8l5 3V8l5 3V8l5 3V5h3v15Z" />
+      <path d="M6 16h.01M10 16h.01M14 16h.01M18 16h.01" />
+    </svg>
+  );
+}
+
+export function IconAlert({ size, ...p }: IconProps) {
+  return (
+    <svg {...svgBase(size)} {...p}>
+      <path d="M10.3 3.86a2 2 0 0 1 3.4 0l8.2 14a2 2 0 0 1-1.7 3H3.8a2 2 0 0 1-1.7-3Z" />
+      <path d="M12 9v4M12 17h.01" />
+    </svg>
+  );
+}
+
+export function IconDollar({ size, ...p }: IconProps) {
+  return (
+    <svg {...svgBase(size)} {...p}>
+      <path d="M12 2v20" />
+      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+    </svg>
+  );
+}
+
+export function IconFileCheck({ size, ...p }: IconProps) {
+  return (
+    <svg {...svgBase(size)} {...p}>
+      <path d="M14 3v4a2 2 0 0 0 2 2h4" />
+      <path d="M5 5a2 2 0 0 1 2-2h7l6 6v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2Z" />
+      <path d="m9 15 2 2 4-4" />
+    </svg>
+  );
+}
