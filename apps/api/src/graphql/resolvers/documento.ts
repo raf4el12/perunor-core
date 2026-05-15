@@ -4,6 +4,7 @@ import {
   documentoLinea,
   contadorDocumento,
   outboxEvento,
+  ordenEjecucion,
   articulo,
   almacen,
   proveedor,
@@ -12,7 +13,7 @@ import {
   proceso,
   usuario,
 } from "@perunor/db";
-import { CrearDocumentoSchema, ActualizarDocumentoSchema } from "@perunor/shared";
+import { CrearDocumentoSchema, ActualizarDocumentoSchema, CrearOrdenEjecucionSchema } from "@perunor/shared";
 import { GraphQLError } from "graphql";
 import type { ApolloContext } from "../../context";
 
@@ -126,6 +127,10 @@ export const documentoResolvers = {
             subtotal,
             igv,
             total,
+            tipoCierre: data.tipoCierre ?? null,
+            tipoMotivo: data.tipoMotivo ?? null,
+            fechaInicioPlan: data.fechaInicioPlan ?? null,
+            fechaTerminoPlan: data.fechaTerminoPlan ?? null,
           })
           .returning();
 
@@ -140,6 +145,10 @@ export const documentoResolvers = {
             unidad: l.unidad,
             precioUnitario: l.precioUnitario ?? "0",
             subtotal: l.subtotalNum.toFixed(4),
+            cantidadEstimada: l.cantidadEstimada ?? null,
+            lote: l.lote ?? null,
+            porcentaje: l.porcentaje ?? null,
+            esMateriaInsumo: l.esMateriaInsumo ?? null,
           })),
         );
 
@@ -181,6 +190,10 @@ export const documentoResolvers = {
               unidad: l.unidad,
               precioUnitario: l.precioUnitario ?? "0",
               subtotal: l.subtotalNum.toFixed(4),
+              cantidadEstimada: l.cantidadEstimada ?? null,
+              lote: l.lote ?? null,
+              porcentaje: l.porcentaje ?? null,
+              esMateriaInsumo: l.esMateriaInsumo ?? null,
             })),
           );
         }
@@ -196,6 +209,10 @@ export const documentoResolvers = {
             ...(data.almacenDestinoId !== undefined && { almacenDestinoId: data.almacenDestinoId ?? null }),
             ...(data.conductorId !== undefined && { conductorId: data.conductorId ?? null }),
             ...(data.procesoId !== undefined && { procesoId: data.procesoId ?? null }),
+            ...(data.tipoCierre !== undefined && { tipoCierre: data.tipoCierre ?? null }),
+            ...(data.tipoMotivo !== undefined && { tipoMotivo: data.tipoMotivo ?? null }),
+            ...(data.fechaInicioPlan !== undefined && { fechaInicioPlan: data.fechaInicioPlan ?? null }),
+            ...(data.fechaTerminoPlan !== undefined && { fechaTerminoPlan: data.fechaTerminoPlan ?? null }),
             ...(totales && totales),
             actualizadoEn: new Date(),
           })
@@ -311,11 +328,67 @@ export const documentoResolvers = {
       await db.delete(documento).where(eq(documento.id, id));
       return true;
     },
+
+    crearOrdenEjecucion: async (
+      _: unknown,
+      { documentoId, input }: { documentoId: string; input: unknown },
+      { db, usuarioId }: ApolloContext,
+    ) => {
+      if (!usuarioId) throw new GraphQLError("No autenticado", { extensions: { code: "UNAUTHENTICATED" } });
+
+      const data = CrearOrdenEjecucionSchema.parse(input);
+
+      const [doc] = await db.select().from(documento).where(eq(documento.id, documentoId)).limit(1);
+      if (!doc) throw new GraphQLError("Documento no encontrado", { extensions: { code: "NOT_FOUND" } });
+      if (doc.tipo !== "procesamiento") {
+        throw new GraphQLError("Las ejecuciones solo aplican a documentos de tipo procesamiento", {
+          extensions: { code: "INVALID_TYPE" },
+        });
+      }
+      if (doc.estado === "anulado") {
+        throw new GraphQLError("No se puede registrar ejecución en un documento anulado", {
+          extensions: { code: "INVALID_STATE" },
+        });
+      }
+
+      const [nueva] = await db
+        .insert(ordenEjecucion)
+        .values({
+          documentoId,
+          fechaInicio: new Date(data.fechaInicio),
+          fechaTermino: new Date(data.fechaTermino),
+          nroTrabajadores: data.nroTrabajadores ?? null,
+          supervisor: data.supervisor ?? null,
+        })
+        .returning();
+
+      return nueva;
+    },
+
+    eliminarOrdenEjecucion: async (_: unknown, { id }: { id: string }, { db, usuarioId }: ApolloContext) => {
+      if (!usuarioId) throw new GraphQLError("No autenticado", { extensions: { code: "UNAUTHENTICATED" } });
+
+      const [eje] = await db.select().from(ordenEjecucion).where(eq(ordenEjecucion.id, id)).limit(1);
+      if (!eje) throw new GraphQLError("Ejecución no encontrada", { extensions: { code: "NOT_FOUND" } });
+
+      const [doc] = await db.select().from(documento).where(eq(documento.id, eje.documentoId)).limit(1);
+      if (doc?.estado === "confirmado") {
+        throw new GraphQLError("No se puede eliminar ejecuciones de un documento confirmado", {
+          extensions: { code: "INVALID_STATE" },
+        });
+      }
+
+      await db.delete(ordenEjecucion).where(eq(ordenEjecucion.id, id));
+      return true;
+    },
   },
 
   Documento: {
     lineas: async ({ id }: { id: string }, _: unknown, { db }: ApolloContext) => {
-      return db.select().from(documentoLinea).where(eq(documentoLinea.documentoId, id));
+      return db.select().from(documentoLinea).where(eq(documentoLinea.documentoId, id)).orderBy(documentoLinea.orden);
+    },
+    ejecuciones: async ({ id }: { id: string }, _: unknown, { db }: ApolloContext) => {
+      return db.select().from(ordenEjecucion).where(eq(ordenEjecucion.documentoId, id)).orderBy(ordenEjecucion.fechaInicio);
     },
     proveedor: async (doc: any, _: unknown, { db }: ApolloContext) =>
       doc.proveedorId ? (await db.select().from(proveedor).where(eq(proveedor.id, doc.proveedorId)).limit(1))[0] ?? null : null,
