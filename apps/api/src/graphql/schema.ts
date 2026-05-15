@@ -53,6 +53,8 @@ export const typeDefs = `#graphql
     confirmarDocumento(id: ID!): Documento!
     anularDocumento(id: ID!, motivo: String): Documento!
     eliminarDocumento(id: ID!): Boolean!
+    crearOrdenEjecucion(documentoId: ID!, input: CrearOrdenEjecucionInput!): OrdenEjecucion!
+    eliminarOrdenEjecucion(id: ID!): Boolean!
   }
 
   type Usuario {
@@ -308,6 +310,11 @@ export const typeDefs = `#graphql
     egreso
   }
 
+  enum TipoCierre {
+    auto_recepcion
+    manual
+  }
+
   type DocumentoLinea {
     id: ID!
     articuloId: ID!
@@ -320,6 +327,20 @@ export const typeDefs = `#graphql
     unidad: String!
     precioUnitario: String!
     subtotal: String!
+    cantidadEstimada: String
+    lote: String
+    porcentaje: String
+    esMateriaInsumo: Boolean
+  }
+
+  type OrdenEjecucion {
+    id: ID!
+    documentoId: ID!
+    fechaInicio: String!
+    fechaTermino: String!
+    nroTrabajadores: Int
+    supervisor: String
+    creadoEn: String!
   }
 
   type Documento {
@@ -349,7 +370,13 @@ export const typeDefs = `#graphql
     igv: String!
     total: String!
 
+    tipoCierre: TipoCierre
+    tipoMotivo: String
+    fechaInicioPlan: String
+    fechaTerminoPlan: String
+
     lineas: [DocumentoLinea!]!
+    ejecuciones: [OrdenEjecucion!]!
 
     creadoEn: String!
     actualizadoEn: String!
@@ -371,6 +398,10 @@ export const typeDefs = `#graphql
     cantidad: String!
     unidad: String!
     precioUnitario: String
+    cantidadEstimada: String
+    lote: String
+    porcentaje: String
+    esMateriaInsumo: Boolean
   }
 
   input CrearDocumentoInput {
@@ -383,7 +414,18 @@ export const typeDefs = `#graphql
     almacenDestinoId: ID
     conductorId: ID
     procesoId: ID
+    tipoCierre: TipoCierre
+    tipoMotivo: String
+    fechaInicioPlan: String
+    fechaTerminoPlan: String
     lineas: [CrearDocumentoLineaInput!]!
+  }
+
+  input CrearOrdenEjecucionInput {
+    fechaInicio: String!
+    fechaTermino: String!
+    nroTrabajadores: Int
+    supervisor: String
   }
 
   type KardexMovimiento {
@@ -506,6 +548,10 @@ export const typeDefs = `#graphql
     almacenDestinoId: ID
     conductorId: ID
     procesoId: ID
+    tipoCierre: TipoCierre
+    tipoMotivo: String
+    fechaInicioPlan: String
+    fechaTerminoPlan: String
     lineas: [CrearDocumentoLineaInput!]
   }
 `;

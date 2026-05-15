@@ -75,6 +75,14 @@ PORT=4000
 - Siempre validar con Zod en resolvers antes de tocar la DB
 - Auth: verificar `context.usuarioId` al inicio de cada resolver protegido
 
+## Módulo OrdenTrabajo / procesamiento (enriquecido)
+- `documento` tiene campos opcionales para procesamiento: `tipo_cierre` (enum: `auto_recepcion|manual`), `tipo_motivo`, `fecha_inicio_plan`, `fecha_termino_plan`.
+- `documento_linea` tiene campos opcionales para planificación: `cantidad_estimada`, `lote`, `porcentaje` (rendimiento de salida), `es_materia_insumo`.
+- Nueva tabla `orden_ejecucion`: registra sesiones de trabajo de una orden (fechaInicio, fechaTermino, nroTrabajadores, supervisor). Cascade delete al documento.
+- Mutations nuevos: `crearOrdenEjecucion(documentoId, input)`, `eliminarOrdenEjecucion(id)`.
+- Field resolver `Documento.ejecuciones` retorna lista ordenada por fechaInicio.
+- Reglas: ejecuciones solo para tipo=procesamiento; no se pueden crear en documentos anulados; no se pueden eliminar en documentos confirmados.
+
 ## Próximo paso
 **Reportes avanzados + alertas** (los dos primeros reportes ya están listos):
 - Análisis de costos de paprika procesada — vincular egreso de materia prima con ingreso de producto terminado vía `documento.tipo=procesamiento`, calcular costo real del PT a partir del costo ponderado de los insumos.

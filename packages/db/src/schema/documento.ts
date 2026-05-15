@@ -19,6 +19,11 @@ export const estadoDocumentoEnum = pgEnum("estado_documento", [
   "anulado",
 ]);
 
+export const tipoCierreEnum = pgEnum("tipo_cierre", [
+  "auto_recepcion",
+  "manual",
+]);
+
 export const documento = pgTable("documento", {
   id: uuid("id").primaryKey().defaultRandom(),
   tipo: tipoDocumentoEnum("tipo").notNull(),
@@ -38,6 +43,12 @@ export const documento = pgTable("documento", {
   subtotal: numeric("subtotal", { precision: 14, scale: 4 }).notNull().default("0"),
   igv: numeric("igv", { precision: 14, scale: 4 }).notNull().default("0"),
   total: numeric("total", { precision: 14, scale: 4 }).notNull().default("0"),
+
+  // Campos exclusivos de procesamiento (OrdenTrabajo)
+  tipoCierre: tipoCierreEnum("tipo_cierre"),
+  tipoMotivo: varchar("tipo_motivo", { length: 100 }),
+  fechaInicioPlan: date("fecha_inicio_plan"),
+  fechaTerminoPlan: date("fecha_termino_plan"),
 
   creadoEn: timestamp("creado_en").notNull().defaultNow(),
   actualizadoEn: timestamp("actualizado_en").notNull().defaultNow(),
